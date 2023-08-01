@@ -1,16 +1,40 @@
+apiVersion: "apiextensions.k8s.io/v1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "components.oda.tmforum.org"
 spec:
   type: object
   properties:
-    type:
+    componentId: #added by gaetano.biancardi@accenture.com on 2023-07-15
       type: string
-      description: This is the type of functional component and must refer to a TM Forum published type.
+      description: TMF ODA Component identifier in the format TMFCXXX.
       example: TMFC001-productcatalogmanagement
-    version:
+    componentName: #added by gaetano.biancardi@accenture.com on 2023-07-15
       type: string
-      description: This is the version of the component (it is specific to the vendor of this component and not the type).
-    description:
+      description: TMF ODA Component Name
+      example: Product Catalog Management      
+    componentFunctionalBlock: #added by gaetano.biancardi@accenture.com on 2023-07-15
       type: string
-      description: This is a short description of the component's purpose.
+      description: TMF ODA Component Name Functional Block
+      example: Core Commerce Management           
+    componenentDescription: #added by gaetano.biancardi@accenture.com on 2023-07-15
+      type: string
+      description: TMF ODA Component Description
+      example: The Product Catalog Management ODA Component is responsible for organizing the collection of Products and Product Offerings specifications that identify and define all requirements of a product or a product offering that can be commercialized.              
+    componentVersion: #added by gaetano.biancardi@accenture.com on 2023-07-15
+      type: string
+      description: TMF ODA Component Version
+      example: 1.0.0  
+    componentStatus: #added by gaetano.biancardi@accenture.com on 2023-07-15
+      type: string
+      enum: [Specified, Planned, Future]
+      description: TMF ODA Component Version
+      example: 1.0.0  
+    componentPublicationDate: #added by gaetano.biancardi@accenture.com on 2023-07-15
+      type: string
+      format: date
+      example: 2023-08-18
+      description: TMF ODA Component publication date 
     maintainers:
       type: array  
       description: Maintainers is an optional list of maintainers of
@@ -56,16 +80,16 @@ spec:
               name:
                 type: string
                 description: Name of the API
-              id: #added by Gaetano
+              id: 
                 type: string 
                 description: Open API ID in the format TMFXXX #added by Gaetano
-              isRequired: #added by Gaetano 
-                type: string #added by Gaetano 
-                enum: [yes, not] #added by Gaetano 
+              isRequired: #modified by gaetano.biancardi@accenture.com on 2023-07-15
+                type: string 
+                enum: [yes, no] 
                 description: It instructs about  mandatory API (yes) and optional API #added by Gaetano
-              version: #added by Gaetano 
-                type: string #added by Gaetano 
-                required: true #added by Gaetano 
+              version: 
+                type: string 
+                required: true 
                 description: Open API version #added by Gaetano 
               specification:
                 type: string
@@ -207,7 +231,7 @@ spec:
                   description: Open APIs resources specified for the Component  #added by Gaetano 
                   properties:  #added by Gaetano 
                     method  #added by Gaetano                    
-    management:
+    managementFunction:
       type: object  
       properties:  
         exposedAPIs:   
@@ -217,34 +241,50 @@ spec:
             properties:
               name:
                 type: string
-                required: true
                 description: Name of the API
+              id: 
+                type: string 
+                description: Open API ID in the format TMFXXX 
+              isRequired:
+                type: string 
+                enum: [yes, no] 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version: 
+                type: string 
+                required: true 
+                description: Open API version  
               specification:
                 type: string
                 format: url
-                description: url to the specification of the API. e.g. url to the swagger file
+                description: url to the specification of the API, if required. e.g. url to the swagger file for Open API.
               apitype:
                 type: string
-                required: true
                 enum: [openapi, open-metrics]
                 description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
               implementation:
                 type: string
-                required: true
                 description: The name of the service where the implementation of the API is found
               path:
                 type: string
-                required: true
                 description: The path to the root of the API
               developerUI:
                 type: string
                 description: (optional) The path to the developer User Interface for the API
               port:
                 type: integer
-                required: true
-                description: The port where the API is exposed 
+                description: The port where the API is exposed
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method   
             required:
             - name
+            - isRequired
+            - id
             - apitype
             - implementation
             - path
@@ -258,27 +298,18 @@ spec:
                 type: string
                 required: true
                 description: Name of the API that this component is dependent on
-              specification:
-                type: string
-                format: url
-                description: url to the specification of the API. e.g. url to the swagger file
-              apitype:
+              id: 
                 type: string
                 required: true
-                enum: [openapi, open-metrics]
-                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics APIs are supported.
-    security:
-      type: object  
-      properties:  
-        exposedAPIs:   
-          type: array
-          items:
-            type: object
-            properties:
-              name:
+                description: Open API id in the format TMFXXX
+              isRequired:
+                type: string 
+                required: true 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version:
                 type: string
-                required: true
-                description: Name of the API
+                requires: true
+                description: Open API version
               specification:
                 type: string
                 format: url
@@ -287,51 +318,91 @@ spec:
                 type: string
                 required: true
                 enum: [openapi]
-                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics APIs are supported.
-              implementation:
-                type: string
-                required: true
-                description: The name of the service where the implementation of the API is found
-              path:
-                type: string
-                required: true
-                description: The path to the root of the API
-              developerUI:
-                type: string
-                description: (optional) The path to the developer User Interface for the API
-              port:
-                type: integer
-                required: true
-                description: The port where the API is exposed 
-            required:
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method   
+              required:
             - name
+            - isRequired
+            - id
             - apitype
             - implementation
             - path
             - port
-        dependentAPIs:   
+        publishedEvents: 
           type: array
           items:
             type: object
             properties:
               name:
                 type: string
-                required: true
-                description: Name of the API that this component is dependent on
+                description: Name of the published event
               specification:
                 type: string
                 format: url
-                description: url to the specification of the API. e.g. url to the swagger file
-              apitype:
+                description: Url of the specification of the event
+              hub:
                 type: string
-                required: true
-                enum: [openapi, open-metrics]
-                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics APIs are supported.
-        controllerRole:
-          description: This is the name of the role that the Canvas controllers will use to interact with the component's APIs.
-            It must exist in the roles exposed by the partyRole API.
-          type: string 
-reporting:
+                description: The path for configuring the destination for the events
+              implementation: 
+                type: string
+                description: ULR where implementation can be retrieved
+              apitype: 
+                type: string
+                enum: [OpenAPI]
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+              port:
+                type: integer
+                description: The port where the hub is exposed 
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method                 
+        subscribedEvents: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the subscribed events that this component want to subscribe to.
+              specification:
+                type: string
+                format: url
+                description: Url of the specification of the event
+              call-back:
+                type: string
+                description: The path to call-back end-point for these events
+              #filter:
+               # type: string
+                #description: The filter to use for this subscription
+                #example: CatalogStateChangeEvent&status=active
+              port:
+                type: integer
+                description: The port where the call-back is exposed 
+              apitype: 
+                type: string
+                enum: [OpenAPI]
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.             
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method             
+    securityFunction:
       type: object  
       properties:  
         exposedAPIs:   
@@ -341,34 +412,50 @@ reporting:
             properties:
               name:
                 type: string
-                required: true
                 description: Name of the API
+              id: 
+                type: string 
+                description: Open API ID in the format TMFXXX 
+              isRequired: #modified by gaetano.biancardi@accenture.com on 2023-07-15
+                type: string 
+                enum: [yes, no] 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version: 
+                type: string 
+                required: true 
+                description: Open API version  
               specification:
                 type: string
                 format: url
-                description: url to the specification of the API. e.g. url to the swagger file
+                description: url to the specification of the API, if required. e.g. url to the swagger file for Open API.
               apitype:
                 type: string
-                required: true
-                enum: [openapi, open-metrics]
-                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+                enum: [openapi, open-metrics, OAuth2]
+                description: The type of API specification. Currently only OpenAPI (swagger), OAuth2 and open-metrics (metrics) APIs are supported.
               implementation:
                 type: string
-                required: true
                 description: The name of the service where the implementation of the API is found
               path:
                 type: string
-                required: true
                 description: The path to the root of the API
               developerUI:
                 type: string
                 description: (optional) The path to the developer User Interface for the API
               port:
                 type: integer
-                required: true
-                description: The port where the API is exposed 
+                description: The port where the API is exposed
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method   
             required:
             - name
+            - isRequired
+            - id
             - apitype
             - implementation
             - path
@@ -382,6 +469,189 @@ reporting:
                 type: string
                 required: true
                 description: Name of the API that this component is dependent on
+              id: 
+                type: string
+                required: true
+                description: Open API id in the format TMFXXX
+              isRequired:
+                type: string 
+                required: true 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version:
+                type: string
+                requires: true
+                description: Open API version
+              specification:
+                type: string
+                format: url
+                description: url to the specification of the API. e.g. url to the swagger file
+              apitype:
+                type: string
+                required: true
+                enum: [openapi, open-metrics, OAuth2]
+                description: The type of API specification. Currently only OpenAPI (swagger), OAuth2 and open-metrics (metrics) APIs are supported.
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method   
+              required:
+            - name
+            - isRequired
+            - id
+            - apitype
+            - implementation
+            - path
+            - port
+        publishedEvents: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the published event
+              specification:
+                type: string
+                format: url
+                description: Url of the specification of the event
+              hub:
+                type: string
+                description: The path for configuring the destination for the events
+              implementation: 
+                type: string
+                description: ULR where implementation can be retrieved
+              apitype: 
+                type: string
+                enum: [OpenAPI, open-metrics, OAuth2]
+                description: The type of API specification. Currently only OpenAPI (swagger), OAuth2 and open-metrics (metrics) APIs are supported.
+              port:
+                type: integer
+                description: The port where the hub is exposed 
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method                 
+        subscribedEvents: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the subscribed events that this component want to subscribe to.
+              specification:
+                type: string
+                format: url
+                description: Url of the specification of the event
+              call-back:
+                type: string
+                description: The path to call-back end-point for these events
+              #filter:
+               # type: string
+                #description: The filter to use for this subscription
+                #example: CatalogStateChangeEvent&status=active
+              port:
+                type: integer
+                description: The port where the call-back is exposed 
+              apitype: 
+                type: string
+                enum: [OpenAPI, open-metrics, OAuth2]
+                description: The type of API specification. Currently only OpenAPI (swagger), OAuth2 and open-metrics (metrics) APIs are supported.             
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method             
+reportingFunction:
+      type: object  
+      properties:  
+        exposedAPIs:   
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the API
+              id: 
+                type: string 
+                description: Open API ID in the format TMFXXX 
+              isRequired: #modified by gaetano.biancardi@accenture.com on 2023-07-15
+                type: string 
+                enum: [yes, no] 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version: 
+                type: string 
+                required: true 
+                description: Open API version  
+              specification:
+                type: string
+                format: url
+                description: url to the specification of the API, if required. e.g. url to the swagger file for Open API.
+              apitype:
+                type: string
+                enum: [openapi, open-metrics]
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+              implementation:
+                type: string
+                description: The name of the service where the implementation of the API is found
+              path:
+                type: string
+                description: The path to the root of the API
+              developerUI:
+                type: string
+                description: (optional) The path to the developer User Interface for the API
+              port:
+                type: integer
+                description: The port where the API is exposed
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method   
+            required:
+            - name
+            - isRequired
+            - id
+            - apitype
+            - implementation
+            - path
+            - port
+        dependentAPIs:   
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                required: true
+                description: Name of the API that this component is dependent on
+              id: 
+                type: string
+                required: true
+                description: Open API id in the format TMFXXX
+              isRequired:
+                type: string 
+                required: true 
+                description: It instructs about  mandatory API (yes) and optional API 
+              version:
+                type: string
+                requires: true
+                description: Open API version
               specification:
                 type: string
                 format: url
@@ -390,4 +660,87 @@ reporting:
                 type: string
                 required: true
                 enum: [openapi, open-metrics]
-                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics APIs are supported.
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method  
+              required:
+            - name
+            - isRequired
+            - id
+            - apitype
+            - implementation
+            - path
+            - port 
+        publishedEvents: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the published event
+              specification:
+                type: string
+                format: url
+                description: Url of the specification of the event
+              hub:
+                type: string
+                description: The path for configuring the destination for the events
+              implementation: 
+                type: string
+                description: ULR where implementation can be retrieved
+              apitype: 
+                type: string
+                enum: [OpenAPI]
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.
+              port:
+                type: integer
+                description: The port where the hub is exposed 
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method                 
+        subscribedEvents: 
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the subscribed events that this component want to subscribe to.
+              specification:
+                type: string
+                format: url
+                description: Url of the specification of the event
+              call-back:
+                type: string
+                description: The path to call-back end-point for these events
+              #filter:
+               # type: string
+                #description: The filter to use for this subscription
+                #example: CatalogStateChangeEvent&status=active
+              port:
+                type: integer
+                description: The port where the call-back is exposed 
+              apitype: 
+                type: string
+                enum: [OpenAPI]
+                description: The type of API specification. Currently only OpenAPI (swagger) and open-metrics (metrics) APIs are supported.             
+              resources:   
+                type: array   
+                items:   
+                  resources:    
+                  type: object   
+                  description: Open APIs resources specified for the Component   
+                  properties:   
+                    method             
